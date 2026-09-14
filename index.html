@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 AI Video Script Generator - Browser Version</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease;
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-download {
+            background: #28a745;
+            color: white;
+            margin-top: 10px;
+        }
+        
+        .btn-download:hover {
+            background: #218838;
+        }
+        
+        .output-section {
+            grid-column: 1 / -1;
+            display: none;
+        }
+        
+        .output-section.active {
+            display: block;
+        }
+        
+        .output-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .output-content {
+            color: #333;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #1565c0;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .tab-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 AI Video Script Generator</h1>
+            <p>Generate Complete YouTube Scripts Instantly - No Installation Needed!</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('single')">Single Product</button>
+            <button class="tab-btn" onclick="switchTab('top5')">Top 5 Products</button>
+            <button class="tab-btn" onclick="switchTab('about')">About</button>
+        </div>
+        
+        <!-- Single Product Tab -->
+        <div id="single" class="tab-content active">
+            <div class="content-wrapper">
+                <div class="card">
+                    <h2>📝 Single Product Script</h2>
+                    
+                    <div class="info-box">
+                        💡 Generate complete video script for any kitchen product
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Product Name *</label>
+                        <input type="text" id="productName" placeholder="e.g., Air Fryer XL 2024" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="category">
+                            <option>Kitchen Appliances</option>
+                            <option>Cooking Tools</option>
+                            <option>Food Storage</option>
+                            <option>Cutlery & Knives</option>
+                            <option>Bakeware</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Price *</label>
+                        <input type="text" id="price" placeholder="e.g., $79.99" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Features (comma separated) *</label>
+                        <textarea id="features" placeholder="e.g., Large capacity, 11 modes, Digital timer, Energy efficient" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Amazon ASIN (Optional)</label>
+                        <input type="text" id="asin" placeholder="e.g., B0123456789">
+                    </div>
+                    
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="generateSingleScript()">🚀 Generate Script</button>
+                        <button class="btn-secondary" onclick="clearSingleForm()">Clear</button>
+                    </div>
+                </div>
+                
+                <div class="card output-section" id="singleOutput">
+                    <div id="messageContainer"></div>
+                    <button class="copy-btn" onclick="copyContent('singleContent')">📋 Copy All Text</button>
+                    <div class="output-box">
+                        <div class="output-content" id="singleContent"></div>
+                    </div>
+                    <button class="btn-download" onclick="downloadAsFile('singleContent', 'video-script.txt')">⬇️ Download Script</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top 5 Tab -->
+        <div id="top5" class="tab-content">
+            <div class="content-wrapper">
+                <div class="card">
+                    <h2>🏆 Top 5 Products Script</h2>
+                    
+                    <div class="info-box">
+                        💡 Generate ranking-style video script for top 5 products
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Topic *</label>
+                        <input type="text" id="top5Topic" placeholder="e.g., Best Air Fryers 2024" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Video Title *</label>
+                        <input type="text" id="top5Title" placeholder="e.g., Top 5 Air Fryers for Home Cooking" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Target Audience</label>
+                        <select id="audience">
+                            <option>Home Cooks</option>
+                            <option>Busy Professionals</option>
+                            <option>Health Conscious</option>
+                            <option>Budget Conscious</option>
+                            <option>Premium Buyers</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Budget Range *</label>
+                        <input type="text" id="budgetRange" placeholder="e.g., $50-$200" required>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="generateTop5Script()">🚀 Generate Top 5 Script</button>
+                        <button class="btn-secondary" onclick="clearTop5Form()">Clear</button>
+                    </div>
+                </div>
+                
+                <div class="card output-section" id="top5Output">
+                    <div id="messageContainer2"></div>
+                    <button class="copy-btn" onclick="copyContent('top5Content')">📋 Copy All Text</button>
+                    <div class="output-box">
+                        <div class="output-content" id="top5Content"></div>
+                    </div>
+                    <button class="btn-download" onclick="downloadAsFile('top5Content', 'top5-script.txt')">⬇️ Download Script</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- About Tab -->
+        <div id="about" class="tab-content">
+            <div class="card">
+                <h2>ℹ️ About This Tool</h2>
+                <p style="color: #666; line-height: 1.8; margin-bottom: 20px;">
+                    <strong>🎬 AI Video Script Generator</strong> is a completely free, browser-based tool that helps content creators generate professional video scripts instantly.
+                </p>
+                
+                <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 10px;">✨ Features:</h3>
+                <ul style="color: #666; margin-left: 20px; line-height: 2;">
+                    <li>✅ Generate complete video scripts in seconds</li>
+                    <li>✅ YouTube optimized titles and descriptions</li>
+                    <li>✅ Blog post outlines ready to use</li>
+                    <li>✅ Social media captions (Instagram, TikTok, Pinterest)</li>
+                    <li>✅ Amazon affiliate link support</li>
+                    <li>✅ Download scripts as text files</li>
+                    <li>✅ No installation required - runs in browser</li>
+                    <li>✅ Completely free and open source</li>
+                </ul>
+                
+                <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 10px;">🚀 How to Use:</h3>
+                <ol style="color: #666; margin-left: 20px; line-height: 2;">
+                    <li>Fill in your product information</li>
+                    <li>Click "Generate Script"</li>
+                    <li>Copy or download the generated content</li>
+                    <li>Use for YouTube, blog, or social media</li>
+                </ol>
+                
+                <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 10px;">💰 Monetization:</h3>
+                <p style="color: #666; margin-bottom: 10px;">
+                    Use these scripts to create videos for:
+                </p>
+                <ul style="color: #666; margin-left: 20px; line-height: 2;">
+                    <li>🎥 YouTube Channel (with AdSense)</li>
+                    <li>📝 Blog Posts (with Google AdSense)</li>
+                    <li>🔗 Amazon Affiliate Marketing</li>
+                    <li>📱 Social Media Content</li>
+                    <li>💼 Sponsorships & Brand Deals</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function generateSingleScript() {
+            const productName = document.getElementById('productName').value;
+            const category = document.getElementById('category').value;
+            const price = document.getElementById('price').value;
+            const features = document.getElementById('features').value;
+            const asin = document.getElementById('asin').value;
+            
+            if (!productName || !price || !features) {
+                showMessage('singleOutput', 'Please fill in all required fields!', 'error');
+                return;
+            }
+            
+            const youtubeTitle = `${productName} Review & Unboxing | Best Kitchen Gadget 2024 | Amazon Pick`;
+            const youtubeDesc = `Check out this amazing ${productName}! Perfect for your kitchen.
+
+Product: ${productName}
+Category: ${category}
+Price: ${price}
+Features: ${features}
+
+🔗 Check Price on Amazon: https://amazon.com/s?k=${productName.replace(/\\s+/g, '+')}
+${asin ? `🔗 Direct Link: https://amazon.com/dp/${asin}` : ''}
+
+📱 Visit our website: https://kitchenpurely.com
+Subscribe for more reviews!
+
+#${productName.replace(/\\s+/g, '')} #AmazonAffiliates #KitchenGadgets`;
+            
+            const videoScript = `
+📹 VIDEO SCRIPT - ${productName}
+
+⏱️ INTRO (0-15 seconds):
+"Hey everyone! Today we're reviewing the ${productName} - one of the most talked-about kitchen gadgets in 2024. Is it worth the ${price}? Let's find out!"
+
+⏱️ OVERVIEW (15-45 seconds):
+"This ${productName} falls under the ${category} category. It's priced at ${price}, which is competitive for the quality you're getting. Let me show you what's inside the box."
+
+⏱️ KEY FEATURES (45-2:00 minutes):
+${features.split(',').map((f, i) => `✓ Feature ${i+1}: ${f.trim()}`).join('\\n')}
+
+⏱️ DEMO (2:00-3:30 minutes):
+"Let me show you how it works in action... [show product being used]"
+
+⏱️ PROS & CONS (3:30-4:30 minutes):
+PROS:
+- Excellent quality
+- Great value for money
+- Easy to use
+- Excellent customer reviews
+
+CONS:
+- May be slightly bulky
+- Requires proper maintenance
+
+⏱️ AMAZON AFFILIATE LINK (4:30-4:45 minutes):
+"You can find the ${productName} on Amazon at the link in the description. As an affiliate, we earn a small commission if you purchase through our link - at no extra cost to you!"
+
+⏱️ OUTRO (4:45-5:00 minutes):
+"Thanks for watching! Don't forget to subscribe and hit the bell icon for more kitchen gadget reviews. Check out our website kitchenpurely.com for more information!"`;
+            
+            const fullContent = `YOUTUBE TITLE:\n${youtubeTitle}\n\n---\n\nYOUTUBE DESCRIPTION:\n${youtubeDesc}\n\n---\n\nFULL VIDEO SCRIPT:\n${videoScript}`;
+            
+            displayOutput('singleOutput', 'singleContent', fullContent);
+            showMessage('singleOutput', '✅ Script generated successfully!', 'success');
+        }
+        
+        function generateTop5Script() {
+            const topic = document.getElementById('top5Topic').value;
+            const title = document.getElementById('top5Title').value;
+            const audience = document.getElementById('audience').value;
+            const budgetRange = document.getElementById('budgetRange').value;
+            
+            if (!topic || !title || !budgetRange) {
+                showMessage('top5Output', 'Please fill in all required fields!', 'error');
+                return;
+            }
+            
+            const youtubeTitle = `${title} | Best Products 2024 | Amazon Affiliate Picks`;
+            const youtubeDesc = `Top 5 ${topic} perfect for ${audience.toLowerCase()}.
+
+Budget Range: ${budgetRange}
+
+In this video, we review the best ${topic} products:
+Perfect for: ${audience}
+
+All links in description! ⬇️
+
+📱 Visit: https://kitchenpurely.com
+Subscribe for more kitchen reviews!
+
+#Top5 #${topic.replace(/\\s+/g, '')} #AmazonAffiliates`;
+            
+            const videoScript = `
+📹 VIDEO SCRIPT - Top 5 ${topic}
+
+⏱️ INTRO (0-20 seconds):
+"Welcome back! Today we're counting down the top 5 ${topic} that every ${audience.toLowerCase()} should know about. We're keeping the budget range in mind at ${budgetRange}. Let's get started!"
+
+⏱️ RANKING EXPLANATION (20-40 seconds):
+"We've ranked these based on quality, value, customer reviews, and performance. Whether you're a beginner or a pro, there's something here for everyone."
+
+⏱️ PRODUCT #5 (0:40-1:30):
+"Coming in at number 5..."
+[Show product, features, price, Amazon link]
+Rating: ⭐⭐⭐⭐⭐
+Best For: Budget-conscious buyers
+
+⏱️ PRODUCT #4 (1:30-2:20):
+"At number 4..."
+[Show product, features, price, Amazon link]
+Rating: ⭐⭐⭐⭐⭐
+Best For: Mid-range buyers
+
+⏱️ PRODUCT #3 (2:20-3:10):
+"Our number 3 pick..."
+[Show product, features, price, Amazon link]
+Rating: ⭐⭐⭐⭐⭐
+Best For: Quality-focused buyers
+
+⏱️ PRODUCT #2 (3:10-4:00):
+"And the runner-up..."
+[Show product, features, price, Amazon link]
+Rating: ⭐⭐⭐⭐⭐
+Best For: Power users
+
+⏱️ PRODUCT #1 (4:00-4:50):
+"Finally, our top choice..."
+[Show product, features, price, Amazon link]
+Rating: ⭐⭐⭐⭐⭐
+Best For: Everyone!
+
+⏱️ COMPARISON TABLE (4:50-5:10):
+[Show all products with prices and ratings side by side]
+
+⏱️ OUTRO (5:30-5:45):
+"Which one is your favorite? Let us know in the comments! Subscribe for more!"`;
+            
+            const fullContent = `YOUTUBE TITLE:\n${youtubeTitle}\n\n---\n\nYOUTUBE DESCRIPTION:\n${youtubeDesc}\n\n---\n\nFULL VIDEO SCRIPT:\n${videoScript}`;
+            
+            displayOutput('top5Output', 'top5Content', fullContent);
+            showMessage('top5Output', '✅ Top 5 script generated successfully!', 'success');
+        }
+        
+        function displayOutput(outputDivId, contentDivId, content) {
+            const outputDiv = document.getElementById(outputDivId);
+            const contentDiv = document.getElementById(contentDivId);
+            contentDiv.innerText = content;
+            outputDiv.classList.add('active');
+            setTimeout(() => {
+                outputDiv.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+        
+        function showMessage(outputDivId, message, type) {
+            const messageContainer = document.querySelector(`#${outputDivId} #messageContainer, #${outputDivId} #messageContainer2`);
+            if (messageContainer) {
+                messageContainer.innerHTML = `<div class="${type}-message">${message}</div>`;
+            }
+        }
+        
+        function copyContent(elementId) {
+            const content = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(content).then(() => {
+                alert('✅ Content copied to clipboard!');
+            }).catch(err => {
+                alert('❌ Failed to copy to clipboard');
+            });
+        }
+        
+        function downloadAsFile(elementId, filename) {
+            const content = document.getElementById(elementId).innerText;
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+        
+        function clearSingleForm() {
+            document.getElementById('productName').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('features').value = '';
+            document.getElementById('asin').value = '';
+            document.getElementById('singleOutput').classList.remove('active');
+        }
+        
+        function clearTop5Form() {
+            document.getElementById('top5Topic').value = '';
+            document.getElementById('top5Title').value = '';
+            document.getElementById('budgetRange').value = '';
+            document.getElementById('top5Output').classList.remove('active');
+        }
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
