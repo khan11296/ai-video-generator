@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .output-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .output-section.active {
+            display: block;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 AI Video Generator</h1>
+            <p>Text to Video with AI Voice, Music & Effects</p>
+        </div>
+        
+        <div class="card">
+            <h2 style="color: #667eea; margin-bottom: 30px;">Generate Your Video</h2>
+            
+            <form id="videoForm">
+                <div class="form-group">
+                    <label>Product Name *</label>
+                    <input type="text" id="productName" required placeholder="e.g., Air Fryer XL 2024">
+                </div>
+                
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="category">
+                        <option>Kitchen Appliances</option>
+                        <option>Cooking Tools</option>
+                        <option>Food Storage</option>
+                        <option>Cutlery & Knives</option>
+                        <option>Electronics</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Price *</label>
+                    <input type="text" id="price" required placeholder="e.g., $79.99">
+                </div>
+                
+                <div class="form-group">
+                    <label>Features (comma separated) *</label>
+                    <textarea id="features" required placeholder="e.g., Large capacity, 11 cooking modes, Digital timer, Energy efficient"></textarea>
+                </div>
+                
+                <div class="button-group">
+                    <button type="submit" class="btn-primary" id="generateBtn">🚀 Generate Video</button>
+                </div>
+                
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">Initializing...</div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="output-section" id="outputSection">
+            <div id="messageContainer"></div>
+            
+            <div style="margin-top: 20px;" id="videoInfo"></div>
+            
+            <div class="button-group" style="margin-top: 20px;">
+                <button class="btn-primary" id="downloadBtn">📥 Download Video</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('videoForm');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const outputSection = document.getElementById('outputSection');
+        const messageContainer = document.getElementById('messageContainer');
+        const videoInfo = document.getElementById('videoInfo');
+        const generateBtn = document.getElementById('generateBtn');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const productName = document.getElementById('productName').value;
+            const category = document.getElementById('category').value;
+            const price = document.getElementById('price').value;
+            const features = document.getElementById('features').value;
+            
+            if (!productName || !price || !features) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            generateBtn.disabled = true;
+            progressContainer.style.display = 'block';
+            outputSection.classList.remove('active');
+            messageContainer.innerHTML = '';
+            
+            try {
+                updateProgress(20, 'Generating script...');
+                await new Promise(r => setTimeout(r, 500));
+                
+                updateProgress(40, 'Creating AI voice...');
+                await new Promise(r => setTimeout(r, 500));
+                
+                updateProgress(60, 'Fetching product images...');
+                await new Promise(r => setTimeout(r, 500));
+                
+                updateProgress(80, 'Creating video with effects...');
+                await new Promise(r => setTimeout(r, 500));
+                
+                const response = await fetch('/api/generate-video', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        productName,
+                        category,
+                        price,
+                        features
+                    })
+                });
+                
+                updateProgress(100, 'Video generation complete!');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showSuccess(data);
+                } else {
+                    const error = await response.json();
+                    showError(error.message);
+                }
+                
+            } catch (error) {
+                showError('An error occurred: ' + error.message);
+            } finally {
+                generateBtn.disabled = false;
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                }, 1000);
+            }
+        });
+        
+        function updateProgress(percent, text) {
+            progressFill.style.width = percent + '%';
+            progressText.textContent = text;
+        }
+        
+        function showSuccess(data) {
+            messageContainer.innerHTML = `
+                <div class="success-message">
+                    ✅ ${data.message}
+                </div>
+            `;
+            
+            videoInfo.innerHTML = `
+                <h3 style="color: #667eea; margin-bottom: 15px;">📹 Video Generated Successfully!</h3>
+                <p style="color: #666; margin-bottom: 10px;"><strong>File:</strong> ${data.video_file}</p>
+                <p style="color: #666;"><strong>Status:</strong> Ready to download or upload to YouTube</p>
+            `;
+            
+            outputSection.classList.add('active');
+        }
+        
+        function showError(message) {
+            messageContainer.innerHTML = `
+                <div class="error-message">
+                    ❌ ${message}
+                </div>
+            `;
+            outputSection.classList.add('active');
+        }
+    </script>
+</body>
+</html>
